@@ -1,3 +1,13 @@
+# Credit to diramtafen for sources
+# Provision master
+```
+git clone https://github.com/diranetafen/cursus-devops.git
+cd cursus-devops/vagrant/puppet/
+vagrant up puppet --no-provision
+vagrant ssh puppet
+sudo su -
+```
+
 # Setup Puppet
 
 ## Install Puppet Server
