@@ -1,0 +1,62 @@
+- name: install and configure nginx on web server 
+  hosts: web
+  become: yes
+  vars: 
+    liste:
+    - Formation Ansible
+    - Damien
+    - mail@mail.com
+    - Devops Engineer
+    packages:
+    - nginx
+    - mariadb-client
+    - php-mbstring
+    - php-fpm
+    - php-xml
+    - php-intl
+    - php-mysql 
+
+  tasks:
+  - name: install packages
+    package:
+      name: "{{ item }}"
+      state: present
+    loop: "{{ packages }}"
+ 
+  - name: Find HTML files
+    command: find /usr/share/nginx/ -iname "*.html"
+    register: find_output
+
+  - name: Copy HTML files as .orig 
+    copy:
+      src: "{{ item }}"
+      dest: "{{ item }}.orig"
+      remote_src: yes
+    loop:
+    - "{{ find_output.stdout }}" 
+
+  - name: Edit index.html
+    template:
+      src: index.html.j2
+      dest: /var/www/html/index.html
+    notify: reload nginx
+ 
+  handlers:
+  - name: reload nginx
+    service:
+      name: nginx
+      state: reloaded
+- name: install mariadb on db servers
+  hosts: db
+  become: yes
+  tasks:
+  - name: install mariadb-server
+    package:
+      name: mariadb-server
+      state: present
+    notify: start_mariadb
+  handlers:
+  - name: start_mariadb
+    service:
+      name: mariadb
+      state: started
