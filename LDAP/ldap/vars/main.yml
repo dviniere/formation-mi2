@@ -1,8 +1,13 @@
-package: ['slapd','ldap-utils']
+package: ['slapd','ldap-utils','python3-ldap']
 openldap_admin_password: admin
 openldap_admin_user: admin
 openldap_domain_name: atos.fr
 openldap_org: atos.fr
+
+openldap_confdir: /etc/ldap
+openldap_user: openldap
+openldap_group: openldap
+
 
 unit:
   - employes

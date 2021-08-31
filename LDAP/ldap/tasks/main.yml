@@ -36,21 +36,34 @@
 #  copy:
 #    src: files/atos.ldif
 #    dest: /tmp/atos.ldif
-
+#  tags: no_template_jinja2
+    
 - name: Install python-ldap python package
   pip:
     name: python-ldap
-
+  tags: 
+    - add_entry
+    - remove_entry
+  
 - name: add LDAP entry - org employes
   community.general.ldap_entry:
     dn: ou=employes,dc=atos,dc=fr
     objectClass: organizationalUnit
     bind_dn: cn=admin,dc=atos,dc=fr
     bind_pw: "{{ openldap_admin_password }}"
-
+  tags: add_entry
+    
+- name: remove LDAP entry - org employes
+  community.general.ldap_entry:
+    dn: ou=employes,dc=atos,dc=fr
+    bind_dn: cn=admin,dc=atos,dc=fr
+    bind_pw: "{{ openldap_admin_password }}"
+    state: absent
+  tags: remove_entry
+  
 - name: Template atos.ldif
   template:
-    src: templates/atos.ldif.j2
+    src: atos.ldif.j2
     dest: /tmp/atos.ldif
   tags: template_jinja2
 
@@ -60,6 +73,52 @@
     command: "ldapadd -cxWD cn=admin,dc=atos,dc=fr -f /tmp/atos.ldif"
     responses:
       'Enter LDAP Password:' : "{{ openldap_admin_password }}"
-            
+  tags: add_entry_file
 
-
+- name: Activat ssl
+  tags: ssl
+  block:
+  - name: create ssl dir
+    file:
+      path: '{{ openldap_confdir }}/ssl'
+      state: directory
+      owner : '{{ openldap_user }}'
+      group: '{{ openldap_group }}'
+      mode: '0640'
+    
+  - name: Generate an OpenSSL private key with the default values (4096 bits, RSA)
+    community.crypto.openssl_privatekey:
+      path: "{{ openldap_confdir }}/ssl/key.pem"
+  
+  - name: Generate an OpenSSL Certificate Signing Request
+    community.crypto.openssl_csr:
+      path: "{{ openldap_confdir }}/ssl/ldap.csr"
+      privatekey_path: "{{ openldap_confdir }}/ssl/key.pem"
+      common_name: "atos.fr"
+  
+  - name: Generate a Self Signed OpenSSL certificate
+    community.crypto.openssl_certificate:
+      path: "{{ openldap_confdir }}/ssl/ldap.crt"
+      privatekey_path: "{{ openldap_confdir }}/ssl/key.pem"
+      csr_path: "{{ openldap_confdir }}/ssl/ldap.csr"
+      provider: selfsigned
+      
+  - name: change file permission
+    file:
+      path: '{{ openldap_confdir }}/ssl/{{ item }}'
+      owner : '{{ openldap_user }}'
+      group: '{{ openldap_group }}'
+      mode: '0640'
+    loop:
+    - ldap.crt
+    - ldap.csr
+    - key.pem
+    
+  - name: Add ldaps:// into /etc/sysconfig/slapd
+    lineinfile:
+     path: /etc/default/slapd
+     regexp: 'SLAPD_SERVICES='
+     line: 'SLAPD_SERVICES="ldapi:/// ldap:/// ldaps:///"'
+     
+  - name: Modify ldap with certs.ldif
+      shell: ldapmodify -Y EXTERNAL  -H ldapi:/// -f certs.ldif 
