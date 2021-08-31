@@ -1,12 +1,10 @@
-- name: definining openldap install settings
+- name: configure slapd package
   debconf:
     name: slapd
     question: "{{ item['question'] }}"
     value: "{{ item['value'] }}"
     vtype: "{{ item['vtype'] }}"
   become: true
-  #changed_when: false
-  #  no_log: true
   loop:
     - question: slapd/internal/generated_adminpw
       value: "{{ openldap_admin_password }}"
@@ -26,7 +24,7 @@
     - question: shared/organization
       value: "{{ openldap_org }}"
       vtype: string
-
+      
 - name: Install package
   package:
     name: "{{ package }}"
@@ -34,22 +32,27 @@
   tags: package
   notify: start slapd
 
-- name: Copy ldap entry file
-  copy:
-    src: files/atos.ldif
-    dest: /tmp/atos.ldif
+#- name: Copy ldap entry file
+#  copy:
+#    src: files/atos.ldif
+#    dest: /tmp/atos.ldif
 
 - name: Install python-ldap python package
   pip:
     name: python-ldap
 
-- name: add LDAP entry - org
+- name: add LDAP entry - org employes
   community.general.ldap_entry:
     dn: ou=employes,dc=atos,dc=fr
     objectClass: organizationalUnit
     bind_dn: cn=admin,dc=atos,dc=fr
     bind_pw: "{{ openldap_admin_password }}"
 
+- name: Template atos.ldif
+  template:
+    src: templates/atos.ldif.j2
+    dest: /tmp/atos.ldif
+  tags: template_jinja2
 
 - name: Add content ldif
   ignore_errors: yes

@@ -3,4 +3,24 @@ openldap_admin_password: admin
 openldap_admin_user: admin
 openldap_domain_name: atos.fr
 openldap_org: atos.fr
-openldap_db_engine: mdb 
+
+unit:
+  - employes
+  - fournisseur
+annuaire:
+  - ou: employes
+    cn: brahim
+    sn: hamdi
+    desc: formateur
+    tel: 5550001
+  - ou: employes
+    cn: aboubaker
+    sn: diallo
+    desc: dev
+    tel: 5550002
+  - ou: employes
+    cn: damien
+    sn: viniere
+    desc: sysadmin
+    tel: 5550069
+
