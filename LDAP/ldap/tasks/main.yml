@@ -97,7 +97,7 @@
       common_name: "atos.fr"
   
   - name: Generate a Self Signed OpenSSL certificate
-    community.crypto.openssl_certificate:
+    community.crypto.x509_certificate:
       path: "{{ openldap_confdir }}/ssl/ldap.crt"
       privatekey_path: "{{ openldap_confdir }}/ssl/key.pem"
       csr_path: "{{ openldap_confdir }}/ssl/ldap.csr"
@@ -120,8 +120,13 @@
      regexp: 'SLAPD_SERVICES='
      line: 'SLAPD_SERVICES="ldapi:/// ldap:/// ldaps:///"'
      
+  - name: Copy certs.ldif to {{temp_dir}}
+    template: 
+      src: certs.ldif.j2
+      dest: /tmp/certs.ldif
+     
   - name: Modify ldap with certs.ldif 
     expect: 
-      command: "ldapmodify -Y EXTERNAL  -H ldapi:/// -f certs.ldif "
+      command: "ldapmodify -Y EXTERNAL -H ldapi:/// -f /tmp/certs.ldif "
       responses:
         'Enter LDAP Password:' : "{{ openldap_admin_password }}"
