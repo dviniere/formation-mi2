@@ -75,7 +75,7 @@
       'Enter LDAP Password:' : "{{ openldap_admin_password }}"
   tags: add_entry_file
 
-- name: Activat ssl
+- name: Activate ssl
   tags: ssl
   block:
   - name: create ssl dir
@@ -120,5 +120,8 @@
      regexp: 'SLAPD_SERVICES='
      line: 'SLAPD_SERVICES="ldapi:/// ldap:/// ldaps:///"'
      
-  - name: Modify ldap with certs.ldif
-      shell: ldapmodify -Y EXTERNAL  -H ldapi:/// -f certs.ldif 
+  - name: Modify ldap with certs.ldif 
+    expect: 
+      command: "ldapmodify -Y EXTERNAL  -H ldapi:/// -f certs.ldif "
+      responses:
+        'Enter LDAP Password:' : "{{ openldap_admin_password }}"
