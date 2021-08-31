@@ -1,10 +1,10 @@
 dn: cn=config
 changetype: modify
 replace: olcTLSCertificateFile
-olcTLSCertificateFile: "{{ openldap_confdir }}/ssl/ldap.csr"
+olcTLSCertificateFile: /etc/ldap/ssl/ldap.csr
 -
 replace: olcTLSCertificateKeyFile
-olcTLSCertificateKeyFile: "{{ openldap_confdir }}/ssl/key.pem"
+olcTLSCertificateKeyFile: /etc/ldap/ssl/key.pem
 -
 replace: olcTLSCACertificateFile
-olcTLSCACertificateFile: "{{ openldap_confdir }}/ssl/ldap.crt"
+olcTLSCACertificateFile: /etc/ldap/ssl/ldap.crt
