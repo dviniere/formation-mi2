@@ -2,5 +2,5 @@
   hosts: all
   gather_facts: true
   become: yes
-  roles:
-    - role1_uninstall
+  collections:
+    - nginxinc

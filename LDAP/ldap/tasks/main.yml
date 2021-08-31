@@ -1,0 +1,6 @@
+- name: Install package
+    - package:
+        name: "{{ package }}"
+        state: latest
+      tags: package
+      notify: start slapd

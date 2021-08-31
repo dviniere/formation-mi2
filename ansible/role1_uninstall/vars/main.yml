@@ -1,0 +1,6 @@
+liste:
+  - Formation Ansible
+  - VINIERE Damien
+  - damien.viniere@gmail.com
+  - apprenant
+package: ['nginx','mariadb-client','php-mbstring','php-fpm','php-xml','php-intl','php-mysql']

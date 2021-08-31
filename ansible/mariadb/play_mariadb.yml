@@ -1,0 +1,6 @@
+- name: installer mariasb 
+  hosts: all
+  gather_facts: true
+  become: yes
+  roles:
+    - ~/.ansible/collections/ansible_collections/softasap/mariadb_box/roles/sa_mariadb
